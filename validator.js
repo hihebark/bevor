@@ -21,10 +21,14 @@ Validator.prototype.exec = function() {
     let value = rule[key];
     if (typeof value == 'string') value = value.split('|');
     for (let rule of value) {
-      let check_rule = rules.check(rule, key);
-      console.log(key, ' rule: ', rule, ':', check_rule);
+      let _rule = rule.split(':');
+      let rule_name = _rule[0];
+      let rule_options = _rule[1];
+      let check_rule = rules.check(rule_name, key, rule_options);
+      console.log('[*]', key, 'rule:[', rule_name, '] :', check_rule);
     }
   }
+  console.log(this.payload);
 
   return false;
 }
