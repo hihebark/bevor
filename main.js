@@ -11,7 +11,7 @@ let req = {
 const validator = new Validator(req, [
   { test_required: 'required' },
   { test_json: 'json' },
-  { test_regex: 'regex:/([A-Z])\w+/gi' }, // TODO WHY didnt match?
+  { test_regex: 'regex:/([A-Z])\\w+/gi' }, // TODO WHY didnt match?
 	{ test_in: 'in:cat,dog' },
 	{ test_number: 'min:2|max:4|between:2,4' },
 ], { debug: true, first_error: false });

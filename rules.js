@@ -55,7 +55,6 @@ Rules.prototype.max = function(field, max) {
 }
 
 Rules.prototype.between = function(field, value) {
-	console.log(value);
 	value = value.split(',');
 	let min = Math.min(...value)
 	, max = Math.max(...value);
