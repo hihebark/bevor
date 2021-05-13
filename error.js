@@ -5,17 +5,17 @@
  * @param {String} options.path
  * @param {String} options.data
  */
-function Verror (field) {
+function ValidationError (field) {
   let field, errors;
   this.field = field;
   this.errors = [];
 }
 
-Verror.prototype.push = function(error) {
+ValidationError.prototype.push = function(error) {
   this.errors.push(error);
 }
 
-Verror.prototype.toJson = function() {
+ValidationError.prototype.toJson = function() {
   return { [this.field]: this.errors };
 }
 

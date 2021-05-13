@@ -9,59 +9,113 @@ function Rules (payload) {
   this.payload = payload ? payload : {};
 }
 
-Rules.prototype.check = function(name, key, options) {
-  return this[name] ? this[name](key, options) : false;
+const clean = (obj) => JSON.parse(JSON.stringify(obj));
+
+Rules.prototype.check = function(name, field, options) {
+  return this[name] ? this[name](field, options) : false;
 }
 
-Rules.prototype.required = function(key) {
-  return this.payload[key] != undefined;
+Rules.prototype.make = function(rule) {
+	let _rule = rule.split(':');
+	return {
+		name: _rule[0],
+		options: _rule[1],
+	};
 }
 
-Rules.prototype.required_if = function() {}
+Rules.prototype.required = function(field) {
+  let check = this.payload[field] != undefined;
+	return clean({
+		validity: check,
+		error: `The: '${field}' is required.`
+	});
+}
+
+Rules.prototype.required_if = function(field, value) {}
 Rules.prototype.required_unless = function() {}
 
-Rules.prototype.min = function(key, min) {
-  let pl_value = parseInt(this.payload[key]);
+Rules.prototype.min = function(field, min) {
+  let pl_value = parseInt(this.payload[field]);
   min = parseInt(min);
-  return !isNaN(pl_value) && !isNaN(min) ? pl_value > min : false;
+  let check = !isNaN(pl_value) && !isNaN(min) ? pl_value > min : false;
+	return clean({
+		validity: check,
+		error: `The: '${field}' must be at least ${min}.`
+	});
 }
 
-Rules.prototype.max = function(key, min) {
-  let pl_value = parseInt(this.payload[key]);
-  min = parseInt(min);
-  return !isNaN(pl_value) && !isNaN(min) ? pl_value < min : false;
+Rules.prototype.max = function(field, max) {
+  let pl_value = parseInt(this.payload[field]);
+  max = parseInt(max);
+  let check = !isNaN(pl_value) && !isNaN(max) ? pl_value < max : false;
+	return clean({
+		validity: check,
+		error: `The: '${field}' may not be greater than ${max}.`
+	});
 }
 
-Rules.prototype.between = function(key, value) {
-  return this.max(key, Math.max(...value.split(','))) && this.min(key, Math.min(...value.split(',')));
+Rules.prototype.between = function(field, value) {
+	console.log(value);
+	value = value.split(',');
+	let min = Math.min(...value)
+	, max = Math.max(...value);
+
+  let check_max = this.max(field, Math.max(...value))
+	, check_min = this.min(field, Math.min(...value));
+	return clean({
+		validity: check_max.validity && check_min.validity,
+		error: `The: '${field}' must be between ${min} and ${max}.`
+	});
 }
 
-Rules.prototype.in = function() {}
+Rules.prototype.in = function(field, values) {
+	let check = values.split(',').includes(this.payload[field]);
+	return clean({
+		validity: check,
+		error: `The selected value is invalid.`
+	});
+}
+
 Rules.prototype.notIn = function() {}
 
-Rules.prototype.regex = function(key, regex) {
+Rules.prototype.regex = function(field, regex) {
   regex = /\/(.*)\/(.*)/.exec(regex)
   if (regex == null) return false
-  let flags = regex[2]
-  , pattern = regex[1];
-  return new RegExp(pattern, flags).test(this.payload[key]);
+  const pattern = regex[1]
+  , flags = regex[2];
+  let check = new RegExp(pattern, flags).test(this.payload[field]);
+	return clean({
+		validity: check,
+		error: `This format is invalid.`
+	});
 }
 
-Rules.prototype.string = function(key) {
-  this.payload[key] = ''+this.payload[key];
-  return true;
+Rules.prototype.string = function(field) {
+  this.payload[field] = ''+this.payload[field]; // TODO check json;
+	return clean({ validity: true });
 }
-Rules.prototype.number = function(key) {
-  this.payload[key] = parseInt(this.payload[key]);
-  return !isNaN(this.payload[key]);
+Rules.prototype.number = function(field) {
+  this.payload[field] = parseInt(this.payload[field]);
+  let check = !isNaN(this.payload[field]);
+	return clean({
+		validity: check,
+		error: `The: '${field}' is not a number`
+	});
 }
-Rules.prototype.json = function(key) {
+Rules.prototype.json = function(field) {
+	let check = true;
   try {
-  this.payload[key] = JSON.parse(this.payload[key]);
-  return true;
-  } catch (e) { return false; }
+		this.payload[field] = JSON.parse(this.payload[field]);
+  	check = true;
+  } catch (e) {
+		check = false;
+	}
+	return clean({
+		validity: check,
+		error: `The: '${field}' must be a valid JSON.`
+	});
 }
-Rules.prototype.array = function(key) {
+Rules.prototype.array = function(field) {
 }
 Rules.prototype.file = function() {
 }
