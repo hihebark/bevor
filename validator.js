@@ -1,7 +1,9 @@
-/**
- * Create a new collection
+/*
+ * Validator
  * @param {Object} options.payload
  * @param {Array} options.rules
+ * @param {Object} options.options
+ *
  */
 
 const Rules = require('./rules');
@@ -9,7 +11,10 @@ const Rules = require('./rules');
 function Validator (payload, req_rules, options) {
 	this.payload = payload ? payload : {};
 	this.req_rules = req_rules ? req_rules : [];
-	this.options = options ? options : { debug: false, first_error: false };
+	this.options = {
+		debug: options.debug ? options.debug : false,
+		first_error: options.first_error ? options.first_error : false,
+	};
 	this.validation_errors = {};
 	this.is_valid = true;
 	this.rules = new Rules(this.payload);
@@ -38,10 +43,15 @@ Validator.prototype.validate = function() {
 					this.validation_errors[field] = [check.error];
 			}
 
-			if (this.options.debug == true)
-				console.log('[*]', field, 'rule:[', rules.name, '] :', check.validity);
+			if (this.options.debug === true)
+				console.log(
+					`[${Date.now()}][VALIDATOR:debug]`,
+					`field: ${field}`,
+					`rule: ${rules.name} =>`,
+					check.validity
+				);
 
-			if (this.options.first_error == true && this.is_valid == false)
+			if (this.options.first_error === true && this.is_valid === false)
 				return this.is_valid;
 		}
 	}
@@ -49,7 +59,7 @@ Validator.prototype.validate = function() {
 }
 
 Validator.prototype.errors = function() {
-	return this.validation_errors;
+	return Object.keys(this.validation_errors).length == 0 ? null : this.validation_errors;
 }
 
 module.exports = Validator;

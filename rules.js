@@ -9,7 +9,10 @@ function Rules (payload) {
   this.payload = payload ? payload : {};
 }
 
-const clean = (obj) => JSON.parse(JSON.stringify(obj));
+const clean = (obj) => {
+	if (obj.validity == true) obj.error = undefined;
+	return JSON.parse(JSON.stringify(obj));
+}
 
 Rules.prototype.check = function(name, field, options) {
   return this[name] ? this[name](field, options) : false;
@@ -71,28 +74,43 @@ Rules.prototype.in = function(field, values) {
 	let check = values.split(',').includes(this.payload[field]);
 	return clean({
 		validity: check,
-		error: `The selected value is invalid.`
+		error: `The selected '${field}' is invalid.`
 	});
 }
 
-Rules.prototype.notIn = function() {}
+Rules.prototype.not_in = function(field, values) {
+	let check = !values.split(',').includes(this.payload[field]);
+	return clean({
+		validity: check,
+		error: `The selected '${field}' is invalid.`
+	});
+}
 
 Rules.prototype.regex = function(field, regex) {
-  regex = /\/(.*)\/(.*)/.exec(regex)
-  if (regex == null) return false
+  regex = /\/(.*)\/(.*)/.exec(regex);
+  if (regex == null)
+		return clean({
+			validity: false,
+			error: `This format is invalid.`
+		});
   const pattern = regex[1]
   , flags = regex[2];
   let check = new RegExp(pattern, flags).test(this.payload[field]);
 	return clean({
 		validity: check,
-		error: `This format is invalid.`
+		error: `The '${field}' format is invalid.`
 	});
 }
 
 Rules.prototype.string = function(field) {
-  this.payload[field] = ''+this.payload[field]; // TODO check json;
+	if (typeof this.payload[field] == 'object')
+		this.payload[field] = JSON.stringify(this.payload[field]);
+	else 
+		this.payload[field] = ''+this.payload[field];
+
 	return clean({ validity: true });
 }
+
 Rules.prototype.number = function(field) {
   this.payload[field] = parseInt(this.payload[field]);
   let check = !isNaN(this.payload[field]);
@@ -101,11 +119,11 @@ Rules.prototype.number = function(field) {
 		error: `The: '${field}' is not a number`
 	});
 }
+
 Rules.prototype.json = function(field) {
 	let check = true;
   try {
 		this.payload[field] = JSON.parse(this.payload[field]);
-  	check = true;
   } catch (e) {
 		check = false;
 	}
@@ -114,19 +132,74 @@ Rules.prototype.json = function(field) {
 		error: `The: '${field}' must be a valid JSON.`
 	});
 }
+
 Rules.prototype.array = function(field) {
-}
-Rules.prototype.file = function() {
-}
-Rules.prototype.image = function() {
-}
-Rules.prototype.date = function() {
-}
-Rules.prototype.boolean = function() {
+	let check = true;
+  try {
+		this.payload[field] = Array.from(JSON.parse(this.payload[field]));
+  } catch (e) {
+		check = false;
+	}
+	return clean({
+		validity: check,
+		error: `The: '${field}' must be a valid Array.`
+	});
 }
 
-Rules.prototype.email = function() {}
-Rules.prototype.size = function() {}
+Rules.prototype.file = function() {
+}
+
+Rules.prototype.image = function() {
+}
+
+Rules.prototype.date = function(field) {
+}
+
+Rules.prototype.timestamp = function(field) {
+	let check = true;
+	this.payload[field] = parseInt(this.payload[field]);
+	if (!isNaN(this.payload[field]))
+		this.payload[field] = Date.parse(new Date(this.payload[field]));
+	else
+		check = false;
+
+	return clean({
+		validity: check,
+		error: `The '${field}' is not a valid timestamp.`
+	});
+}
+
+Rules.prototype.boolean = function(field) {
+	let check = [
+		true, false, 1, 0, 'true', 'false', '1', '0'
+	].includes(this.payload[field]);
+
+	if (check === true)
+		this.payload[field] = [true, 'true', 1].includes(this.payload[field]) ? true : false;
+
+	return clean({
+		validity: check,
+		error: `The '${field}' field must be true, false, 1 or 0.`
+	});
+}
+
+Rules.prototype.email = function(field) {
+	let check = new RegExp(
+		/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+	).test(this.payload[field]);
+	return clean({
+		validity: check,
+		error: `The '${field}' must be a valid email address.`
+	});
+}
+
+Rules.prototype.size = function(field, size) {
+	let check = this.payload[field].length == size;
+	return clean({
+		validity: check,
+		error: `The '${field}' must be ${size}.`
+	});
+}
 Rules.prototype.url = function() {}
 Rules.prototype.ip = function() {}
 
