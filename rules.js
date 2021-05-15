@@ -1,7 +1,6 @@
 module.exports.Rules = {
 }
 /**
- * Create a new collection
  * @param {Object} options.payload
  */
 
@@ -14,16 +13,19 @@ const clean = (obj) => {
 	return JSON.parse(JSON.stringify(obj));
 }
 
-Rules.prototype.check = function(name, field, options) {
-  return this[name] ? this[name](field, options) : false;
+Rules.prototype.make = function(rule) {
+	rule = rule.split(':');
+	return { name: rule[0], options: rule[1] };
 }
 
-Rules.prototype.make = function(rule) {
-	let _rule = rule.split(':');
-	return {
-		name: _rule[0],
-		options: _rule[1],
-	};
+Rules.prototype.check = function(field, rule) {
+	if (this[rule.name] != undefined)
+		return this[rule.name](field, rule.options);
+	else
+		return clean({
+			validity: false,
+			error: `This: '${rule.name}' does not exist in rules.`
+		});
 }
 
 Rules.prototype.required = function(field) {
@@ -33,9 +35,6 @@ Rules.prototype.required = function(field) {
 		error: `The: '${field}' is required.`
 	});
 }
-
-Rules.prototype.required_if = function(field, value) {}
-Rules.prototype.required_unless = function() {}
 
 Rules.prototype.min = function(field, min) {
   let pl_value = parseInt(this.payload[field]);
@@ -83,6 +82,66 @@ Rules.prototype.not_in = function(field, values) {
 	return clean({
 		validity: check,
 		error: `The selected '${field}' is invalid.`
+	});
+}
+
+Rules.prototype.gte = function(field, value) {
+  let pl_value = parseInt(this.payload[field]);
+  value = parseInt(value);
+	let check = !isNaN(pl_value) && !isNaN(value) ? pl_value >= value : false;
+	return clean({
+		validity: check,
+		error: `The: '${field}' must be greater than ${value}.`
+	});
+}
+
+Rules.prototype.gt = function(field, value) {
+  let pl_value = parseInt(this.payload[field]);
+  value = parseInt(value);
+	let check = !isNaN(pl_value) && !isNaN(value) ? pl_value > value : false;
+	return clean({
+		validity: check,
+		error: `The: '${field}' must be greater than ${value}.`
+	});
+}
+
+Rules.prototype.lte = function(field, value) {
+  let pl_value = parseInt(this.payload[field]);
+  value = parseInt(value);
+	let check = !isNaN(pl_value) && !isNaN(value) ? pl_value <= value : false;
+	return clean({
+		validity: check,
+		error: `The: '${field}' must be less than or equal ${value}.`
+	});
+}
+
+Rules.prototype.lt = function(field, value) {
+  let pl_value = parseInt(this.payload[field]);
+  value = parseInt(value);
+	let check = !isNaN(pl_value) && !isNaN(value) ? pl_value < value : false;
+	return clean({
+		validity: check,
+		error: `The: '${field}' must be less than ${value}.`
+	});
+}
+
+Rules.prototype.eq = function(field, value) {
+  let pl_value = parseInt(this.payload[field]);
+  value = parseInt(value);
+	let check = !isNaN(pl_value) && !isNaN(value) ? pl_value == value : false;
+	return clean({
+		validity: check,
+		error: `The: '${field}' must be equal to ${value}.`
+	});
+}
+
+Rules.prototype.not_eq = function(field, value) {
+  let pl_value = parseInt(this.payload[field]);
+  value = parseInt(value);
+	let check = !isNaN(pl_value) && !isNaN(value) ? pl_value != value : false;
+	return clean({
+		validity: check,
+		error: `The: '${field}' may not be equal to ${value}.`
 	});
 }
 
@@ -153,6 +212,9 @@ Rules.prototype.image = function() {
 }
 
 Rules.prototype.date = function(field) {
+	// TODO find a solution to this --v
+	// Why does Date.parse('COVINGTONOFFICE-2') return a real date?
+	// https://stackoverflow.com/questions/60960821/why-does-date-parsecovingtonoffice-2-return-a-real-date
 }
 
 Rules.prototype.timestamp = function(field) {
@@ -175,7 +237,9 @@ Rules.prototype.boolean = function(field) {
 	].includes(this.payload[field]);
 
 	if (check === true)
-		this.payload[field] = [true, 'true', 1].includes(this.payload[field]) ? true : false;
+		this.payload[field] = [
+			true, 'true', 1
+		].includes(this.payload[field]) ? true : false;
 
 	return clean({
 		validity: check,
@@ -184,9 +248,8 @@ Rules.prototype.boolean = function(field) {
 }
 
 Rules.prototype.email = function(field) {
-	let check = new RegExp(
-		/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-	).test(this.payload[field]);
+	const { email } = require('./commons').regexp;
+	let check = new RegExp(email).test(this.payload[field]);
 	return clean({
 		validity: check,
 		error: `The '${field}' must be a valid email address.`
@@ -200,7 +263,33 @@ Rules.prototype.size = function(field, size) {
 		error: `The '${field}' must be ${size}.`
 	});
 }
-Rules.prototype.url = function() {}
-Rules.prototype.ip = function() {}
+
+Rules.prototype.url = function(field) {
+	const { url } = require('./commons').regexp;
+	let check = new RegExp(url).test(this.payload[field]);
+	return clean({
+		validity: check,
+		error: `The '${field}' must be a valid URL.`
+	});
+}
+
+Rules.prototype.ip = function(field) {
+	const { ip } = require('./commons').regexp;
+	let check = new RegExp(ip).test(this.payload[field]);
+	return clean({
+		validity: check,
+		error: `The '${field}' must be a valid IP.`
+	});
+}
+
+Rules.prototype.ipv6 = function(field) {
+	// NOTE source: https://home.deds.nl/~aeron/regex/
+	const { ipv6 } = require('./commons').regexp;
+	let check = new RegExp(ipv6).test(this.payload[field]);
+	return clean({
+		validity: check,
+		error: `The '${field}' must be a valid IP.`
+	});
+}
 
 module.exports = Rules;

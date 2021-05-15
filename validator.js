@@ -12,8 +12,9 @@ function Validator (payload, req_rules, options) {
 	this.payload = payload ? payload : {};
 	this.req_rules = req_rules ? req_rules : [];
 	this.options = {
-		debug: options.debug ? options.debug : false,
-		first_error: options.first_error ? options.first_error : false,
+		debug: options.debug || false,
+		first_error: options.first_error || false,
+		validation_lang: options.validation_lang || false,
 	};
 	this.validation_errors = {};
 	this.is_valid = true;
@@ -26,14 +27,14 @@ Validator.prototype.validate = function() {
 
 	for (const req_rule of this.req_rules) {
 		const field = Object.keys(req_rule)[0];
-		let array_rules = req_rule[field];
+		let rules = req_rule[field];
 
-		if (typeof array_rules == 'string')
-			array_rules = array_rules.split('|');
+		if (typeof rules == 'string')
+			rules = rules.split('|');
 
-		for (let rule of array_rules) {
-			rules = this.rules.make(rule)
-			let check = this.rules.check(rules.name, field, rules.options);
+		for (let rule of rules) {
+			rule = this.rules.make(rule);
+			let check = this.rules.check(field, rule);
 			this.is_valid = check.validity && this.is_valid;
 
 			if (!check.validity) {
@@ -47,7 +48,7 @@ Validator.prototype.validate = function() {
 				console.log(
 					`[${Date.now()}][VALIDATOR:debug]`,
 					`field: ${field}`,
-					`rule: ${rules.name} =>`,
+					`rule: ${rule.name} =>`,
 					check.validity
 				);
 
