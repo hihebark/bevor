@@ -1,6 +1,11 @@
-# BEVor (beta)
+<p align="center">
+<a href="https://en.wikipedia.org/wiki/Bevor"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/HJRK_A_79_-_Armour_of_Maximilian_I%2C_c._1485_%28detail_of_bevor%29.jpg/1280px-HJRK_A_79_-_Armour_of_Maximilian_I%2C_c._1485_%28detail_of_bevor%29.jpg" width="200px" alt="Armour of Emperor Maximilian I, part of the set of armour probably depicted in Thun fol. 33v, 67 and 67v.">
+</a>
+</p>
 
-**B**etter **E**xpress **V**alidat**or** t's a [laravel validator](https://laravel.com/docs/master/validation) alike to validate requests / payloads. This module is still in **beta**
+# Bevor (beta)
+
+**[Bevor](https://en.wikipedia.org/wiki/Bevor)** it's a [laravel validator](https://laravel.com/docs/master/validation) alike to validate requests / payloads. This module is still in **beta** use it on your own risk, if you find an anomaly or an issue you can create a new [Issue](https://github.com/hihebark/bevor/issues) or open new [Pull Request](https://github.com/hihebark/bevor/pulls) are appreciated.
 
 ## Instalation
 ```
