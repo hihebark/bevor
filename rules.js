@@ -211,7 +211,7 @@ Rules.prototype.file = function() {
 Rules.prototype.image = function() {
 }
 
-Rules.prototype.date = function(field) {
+Rules.prototype.date = function() {
 	// TODO find a solution to this --v
 	// Why does Date.parse('COVINGTONOFFICE-2') return a real date?
 	// https://stackoverflow.com/questions/60960821/why-does-date-parsecovingtonoffice-2-return-a-real-date

@@ -8,7 +8,7 @@
 
 const Rules = require('./rules');
 
-function Validator (payload, req_rules, options) {
+function Validator (payload, req_rules, options = {}) {
 	this.payload = payload ? payload : {};
 	this.req_rules = req_rules ? req_rules : [];
 	this.options = {
