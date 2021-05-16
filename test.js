@@ -13,6 +13,8 @@ const expect = require("chai").expect
 		ip: '0.0.0.0',
 		ipv6: '::',
 		boolean: '0',
+		object: { inner_number: 4 },
+		date: '2021-05-16T22:31:39.995Z'
 	}
 	, { Validator } = require('./main');
 
@@ -113,6 +115,20 @@ describe("Test payload validation", () => {
 		const validator = new Validator(payload, [
 			{ boolean: 'required|boolean' },
 		]);
+		expect(validator.validate()).to.equal(true);
+		expect(validator.errors()).to.equal(null);
+	});
+	it("Field in the payload is number (dot notions)", () => {
+		const validator = new Validator(payload, [
+			{ 'object.inner_number': 'required|number|eq:4' },
+		]);
+		expect(validator.validate()).to.equal(true);
+		expect(validator.errors()).to.equal(null);
+	});
+	it("Field in the payload is date", () => {
+		const validator = new Validator(payload, [
+			{ date: 'required|date' },
+		], );
 		expect(validator.validate()).to.equal(true);
 		expect(validator.errors()).to.equal(null);
 	});

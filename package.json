@@ -12,5 +12,9 @@
     "chai": "^4.3.4",
     "eslint": "^7.26.0",
     "mocha": "^8.4.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1"
   }
 }
