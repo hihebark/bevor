@@ -87,12 +87,10 @@ app.post('/my_route', (req, res, next) => {
 });
 
 ```
-## Documentation
+## Documentation API
 
 documentation goes here
 
 
 ## TODO
-- [ ] validate with dots notation.
-- [ ] add more rules.
 - [ ] refactore the code.

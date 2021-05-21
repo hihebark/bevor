@@ -14,7 +14,10 @@ function Validator (payload, req_rules, options = {}) {
 	this.options = {
 		debug: options.debug || false,
 		first_error: options.first_error || false,
-		validation_lang: options.validation_lang || false,
+		validation_messages: {
+      ...require('./default_messages'),
+      ...options.validation_messages,
+    },
 	};
 	this.validation_errors = {};
 	this.is_valid = true;
@@ -24,6 +27,8 @@ function Validator (payload, req_rules, options = {}) {
 Validator.prototype.validate = function() {
 	if (Object.keys(this.payload).length == 0 && this.req_rules.length == 0)
 		return true;
+	const all_rules = this.rules.getRules()
+  , { error } = require('./commons');
 
 	for (const req_rule of this.req_rules) {
 		const field = Object.keys(req_rule)[0];
@@ -34,26 +39,31 @@ Validator.prototype.validate = function() {
 
 		for (let rule of rules) {
 			rule = this.rules.make(rule);
-			let check = this.rules.check(field, rule);
-			this.is_valid = check.validity && this.is_valid;
+			if (all_rules.includes(rule.name)) {
+				let check = this.rules.check(field, rule);
+				this.is_valid = check.validity && this.is_valid;
 
-			if (!check.validity) {
-				if (this.validation_errors[field] != undefined)
-					this.validation_errors[field].push(check.error);
-				else
-					this.validation_errors[field] = [check.error];
+				if (!check.validity) {
+          let ev = error.make(this.options.validation_messages[rule.name], check.attributes);
+					if (this.validation_errors[field] != undefined)
+						this.validation_errors[field].push(ev);
+					else
+						this.validation_errors[field] = [ev];
+				}
+
+				if (this.options.debug === true)
+					console.log(
+						`[${Date.now()}][VALIDATOR:debug]`,
+						`field: ${field}`,
+						`rule: ${rule.name} =>`,
+						check.validity
+					);
+
+				if (this.options.first_error === true && this.is_valid === false)
+					return this.is_valid;
+			} else {
+				throw new Error(`This '${rule.name}' is not recognized`);
 			}
-
-			if (this.options.debug === true)
-				console.log(
-					`[${Date.now()}][VALIDATOR:debug]`,
-					`field: ${field}`,
-					`rule: ${rule.name} =>`,
-					check.validity
-				);
-
-			if (this.options.first_error === true && this.is_valid === false)
-				return this.is_valid;
 		}
 	}
 	return this.is_valid;
