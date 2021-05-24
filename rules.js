@@ -36,7 +36,8 @@ Rules.prototype.getRules = function() {
 }
 
 Rules.prototype.required = function(field) {
-  let check = _.get(this.payload, field, undefined) != undefined;
+  let value = _.get(this.payload, field, false)
+  , check = value && value != '' && value.length != 0 && (typeof value == 'object' ? Object.keys(value).length != 0 : true);
   return clean({
     validity: check,
     attributes: {

@@ -5,7 +5,7 @@
 
 # Bevor (beta)
 
-**[Bevor](https://en.wikipedia.org/wiki/Bevor)** it's a [laravel validator](https://laravel.com/docs/master/validation) alike to validate requests / payloads. This module is still in **beta** use it on your own risk, if you find an anomaly or an issue you can create a new [Issue](https://github.com/hihebark/bevor/issues) or open new [Pull Request](https://github.com/hihebark/bevor/pulls) are appreciated.
+**[Bevor](https://en.wikipedia.org/wiki/Bevor)** it's a [laravel validator](https://laravel.com/docs/master/validation) alike to validate requests / payloads. This module is still in **beta** use it at on your own risk, if you find an anomaly or an issue you can create a new [Issue](https://github.com/hihebark/bevor/issues) or open new [Pull Request](https://github.com/hihebark/bevor/pulls) are appreciated.
 
 ## Instalation
 ```
@@ -87,10 +87,111 @@ app.post('/my_route', (req, res, next) => {
 });
 
 ```
-## Documentation API
 
-documentation goes here
+## Documentation
 
+List of all available validation rules:
+
+- [required](#required)
+- [min](#min)
+- [max](#max)
+- [between](#between)
+- [in](#in)
+- [not_in](#not_in)
+- [gte](#gte)
+- [gt](#gt)
+- [lte](#lte)
+- [lt](#lt)
+- [eq](#eq)
+- [not_eq](#not_eq)
+- [regex](#regex)
+- [string](#string)
+- [number](#number)
+- [json](#json)
+- [array](#array)
+- [timestamp](#timestamp)
+- [date](#date)
+- [boolean](#boolean)
+- [email](#email)
+- [size](#size)
+- [url](#url)
+- [ip](#ip)
+- [ipv6](#ipv6)
+
+
+### required:
+The field under validation is considered as `required` if it's not equal to undefined, empty string, empty array and an empty object.
+
+### min
+The field being validated has a minimum value of the set value. Example: `min:2` the `2` is the minimum value to which the field must be equal.
+### max
+The field being validated has a maximum value of the set value. Example: `max:10` the `10` is the maximum value to which the field must be equal.
+### between
+The field being validated has a maximum and minimum value of the set value. Example: `between:10,2` the `10` is the maximum value and `2` is the minimum value to which the field must be equal.
+### in
+The field being validated is included in the list defined in the options separated by `,`. Example: `in:cat,dog,frog`.
+### not_in
+The field being validated is not included in the list defined in the options separated by `,`. Example: `not_in:cat,dog,frog`.
+### gte
+The field being validated is **g**reater **t**han **e**qual to the set value. Example: `gte:2` that mean the field is greater than equal `2`.
+### gt
+The field being validated is **g**reater **t**han to the set value. Example: same as [gte](#gte).
+### lte
+The field being validated is **l**ess **t**han to the set value. Example: same as [gte](#gte).
+### lt
+The field being validated is **l**ess **t**han to the set value. Example: same as [gte](#gte).
+### eq
+The field being validated is **eq**ual than to the set value. Example: same as [gte](#gte).
+### not_eq
+The field being validated is not **eq**ual than to the set value. Example: same as [gte](#gte).
+### size
+The field being validated must have the length of set value, Example: `size:255` the field length should equal to `255`.
+### regex
+The field being validated match the [regex](https://en.wikipedia.org/wiki/Regular_expression) of the set value. Example: `regex:/([A-Z])\\w+/gi` this regex match every word not containing numerique values.
+<footnote>Note to the escaped `\` with two `\\`.</footnote>
+### string
+The field being validated must be a string.
+### number
+The field being validated must be a number.
+### json
+The field being validated must be a valid [json](https://www.rfc-editor.org/rfc/rfc8259.txt).
+### array
+The field being validated must be a valid [array](https://www.rfc-editor.org/rfc/rfc8259.txt).
+### timestamp
+The field being validated must be a valid [timestamp](https://datatracker.ietf.org/doc/html/rfc3339#section-1).
+### date
+The field being validated must be a valid [date](https://datatracker.ietf.org/doc/html/rfc3339#section-1).
+### boolean
+The field being validated must be a valid boolean, it can be 1 or 0 for true and false respectively.
+### email
+The field being validated must be a valid [email address](http://emailregex.com/).
+### url
+The field being validated must be a [url(link)](https://datatracker.ietf.org/doc/html/rfc3986).
+### ip
+The field being validated must be a [ipv4 address](https://datatracker.ietf.org/doc/html/rfc791).
+### ipv6
+The field being validated must be a [ipv6 address](https://datatracker.ietf.org/doc/html/rfc2460).
+
+Bevor accept also options, those options are set-to debug, return the first occurred error, or to set défaut error message. Example:
+```js
+const { Validator } = require('bevor');
+const validator = new Validator(payload, [
+  { required: 'required' },
+  { json: 'json' },
+], {
+  debug: true,
+  first_error: true,
+  validation_messages: {
+    required: 'Ce champ "{{ field }}" est requis.'
+  }
+});
+// code
+});
+
+```
+The options `validation_messages` is useful for error message translation, the accepted parameters are `{{ field }}` and `{{ value }}` for all rules except `min`, `max` and `between` rules you can use the `{{ min }}` to get the min value, `{{ max }}` to get the max, and `{{ min }} {{ max }}` in between rule to get the min and the max.
+
+---
 
 ## TODO
 - [ ] refactore the code.
