@@ -7,6 +7,17 @@
     "test": "mocha test.js --exit && eslint ."
   },
   "author": "hihebark",
+  "repository": "https://github.com/hihebark/bevor",
+  "keywords": [
+      "express.js",
+      "express",
+      "validator",
+      "laravel",
+      "rules",
+      "rule",
+      "payload",
+      "error"
+  ],
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.3.4",
