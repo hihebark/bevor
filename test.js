@@ -132,4 +132,11 @@ describe("Test payload validation", () => {
 		expect(validator.validate()).to.equal(true);
 		expect(validator.errors()).to.equal(null);
 	});
+	it("Field in the payload exist in database", () => {
+		const validator = new Validator(payload, [
+			{ date: 'required|exists:true' },
+		], );
+		expect(validator.validate()).to.equal(true);
+		expect(validator.errors()).to.equal(null);
+	});
 });

@@ -30,7 +30,7 @@ Rules.prototype.check = function(field, rule) {
 Rules.prototype.getRules = function() {
   return [
     'required', 'min', 'max', 'between', 'in', 'not_in', 'gte', 'gt', 'lte',
-    'lt', 'eq', 'not_eq', 'regex', 'string', 'number', 'json', 'array',
+    'lt', 'eq', 'not_eq', 'regex', 'string', 'number', 'json', 'array', 'exists',
     'timestamp', 'boolean', 'email', 'size', 'url', 'ip', 'ipv6', 'date',
   ]
 }
@@ -40,6 +40,16 @@ Rules.prototype.required = function(field) {
   , check = value && value != '' && value.length != 0 && (typeof value == 'object' ? Object.keys(value).length != 0 : true);
   return clean({
     validity: check,
+    attributes: {
+      field,
+      value,
+    }
+  });
+}
+
+Rules.prototype.exists = function(field, check) {
+  return clean({
+    validity: check == 'true',
     attributes: {
       field,
       value: _.get(this.payload, field, undefined)
