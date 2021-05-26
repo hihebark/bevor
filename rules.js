@@ -48,47 +48,53 @@ Rules.prototype.required = function(field) {
 }
 
 Rules.prototype.min = function(field, min) {
-  let pl_value = parseInt(_.get(this.payload, field, undefined));
+  let value = _.get(this.payload, field, undefined), check = false;
   min = parseInt(min);
-  let check = !isNaN(pl_value) && !isNaN(min) ? pl_value > min : false;
+  if (typeof value == 'string' && !isNaN(min))
+    check = value.length >= min;
+  else if (typeof value == 'number' && !isNaN(min))
+    check = value > min;
   return clean({
     validity: check,
     attributes: {
       field,
       min,
-      value: _.get(this.payload, field, undefined),
+      value,
     }
   });
 }
 
 Rules.prototype.max = function(field, max) {
-  let pl_value = parseInt(_.get(this.payload, field, undefined));
+  let value = _.get(this.payload, field, undefined), check = false;
   max = parseInt(max);
-  let check = !isNaN(pl_value) && !isNaN(max) ? pl_value < max : false;
+  if (typeof value == 'string' && !isNaN(max))
+    check = value.length <= max;
+  else if (typeof value == 'number' && !isNaN(max))
+    check = value < max;
   return clean({
     validity: check,
     attributes: {
       field,
       max,
-      value: _.get(this.payload, field, undefined)
+      value,
     }
   });
 }
 
-Rules.prototype.between = function(field, value) {
-  value = value.split(',');
-  let min = Math.min(...value)
-    , max = Math.max(...value);
-
-  let check_max = this.max(field, Math.max(...value))
-    , check_min = this.min(field, Math.min(...value));
+Rules.prototype.between = function(field, values) {
+  values = values.split(',');
+  let min = Math.min(...values)
+    , max = Math.max(...values)
+    , value = _.get(this.payload, field, undefined)
+    , check_max = this.max(field, Math.max(...values))
+    , check_min = this.min(field, Math.min(...values));
   return clean({
     validity: check_max.validity && check_min.validity,
     attributes: {
       field,
       min,
       max,
-      value: _.get(this.payload, field, undefined)
+      value
     }
   });
 }
