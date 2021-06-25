@@ -1,5 +1,6 @@
 module.exports = {
   required: `The '{{ field }}' is required.`,
+  required_if: `The '{{ field }}' is required when {{ other }} is {{ other_value }}`,
   exists: `The '{{ field }}' already exists.`,
   min: `The '{{ field }}' must be at least '{{ min }}'.`,
   max: `The '{{ field }}' may not be greater than '{{ max }}'.`,

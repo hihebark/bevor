@@ -1,16 +1,16 @@
 /*
  * Validator
  * @param {Object} options.payload
- * @param {Array} options.rules
+ * @param {Array} options.implicit_attributes
  * @param {Object} options.options
  *
  */
 
 const Rules = require('./rules');
 
-function Validator (payload, req_rules, options = {}) {
+function Validator (payload, implicit_attributes, options = {}) {
 	this.payload = payload ? payload : {};
-	this.req_rules = req_rules ? req_rules : [];
+	this.implicit_attributes = implicit_attributes ? implicit_attributes : [];
 	this.options = {
 		debug: options.debug || false,
 		first_error: options.first_error || false,
@@ -25,14 +25,14 @@ function Validator (payload, req_rules, options = {}) {
 }
 
 Validator.prototype.validate = function() {
-	if (Object.keys(this.payload).length == 0 && this.req_rules.length == 0)
+	if (this.implicit_attributes.length == 0)
 		return true;
 	const all_rules = this.rules.getRules()
   , { error } = require('./commons');
 
-	for (const req_rule of this.req_rules) {
-		const field = Object.keys(req_rule)[0];
-		let rules = req_rule[field];
+	for (const implicit_attribute of this.implicit_attributes) {
+		const field = Object.keys(implicit_attribute)[0];
+		let rules = implicit_attribute[field];
 
 		if (typeof rules == 'string')
 			rules = rules.split('|');

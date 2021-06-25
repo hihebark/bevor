@@ -139,4 +139,11 @@ describe("Test payload validation", () => {
 		expect(validator.validate()).to.equal(true);
 		expect(validator.errors()).to.equal(null);
 	});
+	it("Field in the payload and required if other field is equal to", () => {
+		const validator = new Validator(payload, [
+			{ required: 'required_if:boolean,0' },
+		]);
+		expect(validator.validate()).to.equal(true);
+		expect(validator.errors()).to.equal(null);
+	});
 });

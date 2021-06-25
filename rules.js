@@ -29,20 +29,43 @@ Rules.prototype.check = function(field, rule) {
 
 Rules.prototype.getRules = function() {
   return [
-    'required', 'min', 'max', 'between', 'in', 'not_in', 'gte', 'gt', 'lte',
-    'lt', 'eq', 'not_eq', 'regex', 'string', 'number', 'json', 'array', 'exists',
-    'timestamp', 'boolean', 'email', 'size', 'url', 'ip', 'ipv6', 'date',
+    'required', 'required_if', 'exists', 'in', 'not_in',
+    'min', 'max', 'between', 'size', 'gte', 'gt', 'lte', 'lt', 'eq', 'not_eq',
+    'regex', 'string', 'number', 'json', 'array', 'timestamp', 'boolean', 'date',
+    'email', 'url', 'ip', 'ipv6'
   ]
 }
 
 Rules.prototype.required = function(field) {
   let value = _.get(this.payload, field, false)
-  , check = value && value != '' && value.length != 0 && (typeof value == 'object' ? Object.keys(value).length != 0 : true);
+  , check = value && value != '' && value.length != 0
+    && (typeof value == 'object' ? Object.keys(value).length != 0 : true);
   return clean({
     validity: check,
     attributes: {
       field,
       value,
+    }
+  });
+}
+
+Rules.prototype.required_if = function(field, condition) {
+  condition = condition.split(',');
+  let value = _.get(this.payload, field, false)
+  , other_value = _.get(this.payload, condition[0], undefined)
+  , other_condition = condition[1]
+  , check = other_value == other_condition;
+  if (check)
+    check = value && value != '' && value.length != 0
+      && (typeof value == 'object' ? Object.keys(value).length != 0 : true);
+
+  return clean({
+    validity: check,
+    attributes: {
+      field,
+      value,
+      other: condition[0],
+      other_value: other_condition
     }
   });
 }
@@ -63,7 +86,7 @@ Rules.prototype.min = function(field, min) {
   if (typeof value == 'string' && !isNaN(min))
     check = value.length >= min;
   else if (typeof value == 'number' && !isNaN(min))
-    check = value > min;
+    check = value >= min;
   return clean({
     validity: check,
     attributes: {
@@ -80,7 +103,7 @@ Rules.prototype.max = function(field, max) {
   if (typeof value == 'string' && !isNaN(max))
     check = value.length <= max;
   else if (typeof value == 'number' && !isNaN(max))
-    check = value < max;
+    check = value <= max;
   return clean({
     validity: check,
     attributes: {
