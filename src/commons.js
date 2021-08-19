@@ -13,6 +13,7 @@ module.exports.error = {
     /*eslint no-cond-assign: 0*/
     while(match = regex.exec(message)) {
       let value = attributes[match[1].trim()];
+      if (value == null) value = 'null';
       if (value != undefined)
         message = message.replace(match[0], value);
       regex.lastIndex = 0;
