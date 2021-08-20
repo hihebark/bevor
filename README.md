@@ -71,7 +71,7 @@ const validator = new Validator(payload, [
   { password: ['required', 'string', 'min:6', 'max:32'] },
   { birthdate: ['required', 'date:format,MM-DD-YYYY'] },
   { type: ['required', 'in:particular,professional'] },
-  { age: ['nullable', 'integer', 'gte:20', 'lt:40] },
+  { age: ['nullable', 'integer', 'gte:20', 'lt:40'] },
   { "setting.notification.email": ['boolean'] },
 ], {
   debug: false,

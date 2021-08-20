@@ -1,6 +1,6 @@
 {
   "name": "bevor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Validate payload",
   "main": "main.js",
   "scripts": {
