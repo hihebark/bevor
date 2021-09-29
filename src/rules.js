@@ -80,9 +80,9 @@ Rules.prototype.required_if = function(field, condition) {
   let value = this.get_value(field)
   , other_value = this.get_value(condition[0])
   , other_condition = condition[1]
-  , check = other_value == other_condition;
-  if (check)
-    check = value && value != '' && value.length != 0
+  , check = true;
+  if (other_value == other_condition)
+    check = value !== undefined && value != '' && value.length != 0
       && (typeof value == 'object' ? Object.keys(value).length != 0 : true);
 
   return clean({
@@ -389,13 +389,13 @@ Rules.prototype.image = function(field) {
 Rules.prototype.date = function(field, options) {
   let check = false
     , value = this.get_value(field)
-    , format = 'DD-MM-YYY';
+    , format = 'DD-MM-YYYY';
   if (value != undefined) {
     const moment = require('moment');
     if (options != undefined && options.length == 2)
       format = options[1];
     if (moment(value, format).isValid()) {
-      _.set(this.payload, field, moment(value));
+      _.set(this.payload, field, moment(value, format).format());
       check = true;
     }
   }
@@ -410,7 +410,7 @@ Rules.prototype.date = function(field, options) {
 
 Rules.prototype.timestamp = function(field) {
   let check = false
-    , value = this.get_value(field);
+    , value = parseInt(this.get_value(field));
   if (!isNaN(value)) {
     _.set(this.payload, field, Date.parse(new Date(value)));
     check = true;
