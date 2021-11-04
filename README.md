@@ -69,7 +69,7 @@ const validator = new Validator(payload, [
   { username: ['required', 'string'] },
   { email: ['required', 'email'] },
   { password: ['required', 'string', 'min:6', 'max:32'] },
-  { birthdate: ['required', 'date:format,MM-DD-YYYY'] },
+  { birthdate: ['required', 'date'] },
   { type: ['required', 'in:particular,professional'] },
   { age: ['nullable', 'integer', 'gte:20', 'lt:40'] },
   { "setting.notification.email": ['boolean'] },
@@ -160,7 +160,7 @@ The field being validated has a maximum and minimum value of the set value. Exam
 The field being validated must be a valid boolean, it can be `1`, `0`, `true` or `false`.
 
 ### date
-The field being validated must be a valid date string supported by moment.js [see section string > Supported ISO 8601 strings](https://momentjs.com/docs/#/parsing/string/). Date also supporte format can be used like so: `date:format,DD-MM-YYYY` if the date is valid the validator will set the given format to the field.
+The field being validated must be a valid date string supported by [ISO 8601 Date](https://www.myintervals.com/blog/2009/05/20/iso-8601-date-validation-that-doesnt-suck/).
 
 ### email
 The field being validated must be a valid [email address](http://emailregex.com/).

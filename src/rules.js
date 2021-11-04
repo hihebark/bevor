@@ -3,7 +3,8 @@
  * @param {Object} options.payload
  * @param {Array} options.rules
  */
-const _ = require('lodash');
+const _ = require('lodash')
+, { regexp } = require('./commons');
 
 function Rules (payload, rules, options) {
   this.payload = payload ? payload : {};
@@ -377,7 +378,9 @@ Rules.prototype.array = function(field) {
 
 Rules.prototype.image = function(field) {
   let value = this.get_value(field)
-  , check = value != undefined && value.mimetype != undefined ? /^image\/(png|p?jpeg|gif)$/.test(value.mimetype) : false;
+  , check = value != undefined && value.mimetype != undefined
+    ? new RegExp(regexp.image).test(value.mimetype)
+    : false;
   return clean({
     validity: this.is_nullable || check,
     attributes: {
@@ -386,19 +389,12 @@ Rules.prototype.image = function(field) {
   });
 }
 
-Rules.prototype.date = function(field, options) {
+Rules.prototype.date = function(field) {
   let check = false
-    , value = this.get_value(field)
-    , format = 'DD-MM-YYYY';
-  if (value != undefined) {
-    const moment = require('moment');
-    if (options != undefined && options.length == 2)
-      format = options[1];
-    if (moment(value, format).isValid()) {
-      _.set(this.payload, field, moment(value, format).format());
-      check = true;
-    }
-  }
+    , value = this.get_value(field);
+  if (value != undefined)
+    check = new RegExp(regexp.date).test(value);
+
   return clean({
     validity: this.is_nullable || check,
     attributes: {
@@ -444,9 +440,8 @@ Rules.prototype.boolean = function(field) {
 }
 
 Rules.prototype.email = function(field) {
-  const { email } = require('./commons').regexp;
   let value = this.get_value(field)
-    , check = new RegExp(email).test(value);
+    , check = new RegExp(regexp.email).test(value);
   return clean({
     validity: this.is_nullable || check,
     attributes: {
@@ -471,9 +466,8 @@ Rules.prototype.size = function(field, size) {
 
 Rules.prototype.url = function(field) {
   // NOTE source: https://mathiasbynens.be/demo/url-regex
-  const { url } = require('./commons').regexp;
   let value = this.get_value(field)
-    , check = new RegExp(url).test(value);
+    , check = new RegExp(regexp.url).test(value);
   return clean({
     validity: this.is_nullable || check,
     attributes: {
@@ -484,9 +478,8 @@ Rules.prototype.url = function(field) {
 }
 
 Rules.prototype.ip = function(field) {
-  const { ip } = require('./commons').regexp;
   let value = this.get_value(field)
-    , check = new RegExp(ip).test(value);
+    , check = new RegExp(regexp.ip).test(value);
   return clean({
     validity: this.is_nullable || check,
     attributes: {
@@ -498,9 +491,8 @@ Rules.prototype.ip = function(field) {
 
 Rules.prototype.ipv6 = function(field) {
   // NOTE source: https://home.deds.nl/~aeron/regex/
-  const { ipv6 } = require('./commons').regexp;
   let value = this.get_value(field)
-    , check = new RegExp(ipv6).test(value);
+    , check = new RegExp(regexp.ipv6).test(value);
   return clean({
     validity: this.is_nullable || check,
     attributes: {
