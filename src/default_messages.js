@@ -27,5 +27,5 @@ module.exports = {
   ip: `The '{{ field }}' must be valid ip address.`,
   ipv6: `The '{{ field }}' must be a valid ipv6 address.`,
   date: `The '{{ field }}' must be a valid date.`,
-  image: `The '{{ field }}' must be an image.`
-}
+  image: `The '{{ field }}' must be an image.`,
+};
