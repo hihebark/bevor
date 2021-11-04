@@ -1,10 +1,11 @@
 {
   "name": "bevor",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Validate payload",
   "main": "main.js",
   "scripts": {
-    "test": "mocha src/test.js --exit && eslint ."
+    "test": "mocha src/test.js --exit",
+    "lint": "eslint . &&  echo \"¯\\_(ツ)_/¯\""
   },
   "author": "hihebark",
   "repository": "https://github.com/hihebark/bevor",
