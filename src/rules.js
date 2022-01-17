@@ -108,6 +108,17 @@ Rules.prototype.exists = function (field, value) {
   });
 };
 
+Rules.prototype.custom = function (field, callback) {
+  let check = callback(this.get_value(field), field, this.payload);
+  check = check != true ? false : true; // if the user is returning a string, we assume it's false
+  return clean({
+    validity: check,
+    attributes: {
+      field,
+    },
+  });
+};
+
 Rules.prototype.min = function (field, min) {
   let value = this.get_value(field),
     check = this.is_nullable;

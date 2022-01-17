@@ -36,6 +36,7 @@ const known_rules = [
   "ip",
   "ipv6",
   "image",
+  "custom",
 ];
 
 function RulesParser(rules) {
@@ -58,22 +59,36 @@ RulesParser.prototype.generator = function () {
     let rules = Array.isArray(this.rules) ? this.rules : this.rules.split("|");
     for (let rule of rules) {
       let name, options;
-      if (rule.includes(":")) {
-        let implicit_attribute = rule.split(":");
-        name = implicit_attribute[0];
-        options = implicit_attribute.length > 0 ? implicit_attribute[1] : null;
-        if (options != null)
-          options = options.includes(",") ? options.split(",") : options;
+      if (typeof rule === "object") {
+        for (let key of Object.keys(rule)) {
+          name = key;
+          options = rule[key];
+          if (!known_rules.includes(name))
+            throw new RulesParserError(`Rule "${name}" not defined`);
+          implicit_attributes.push({
+            name: name,
+            options: options,
+          });
+        }
       } else {
-        name = rule;
-        options = true;
+        if (rule.includes(":")) {
+          let implicit_attribute = rule.split(":");
+          name = implicit_attribute[0];
+          options =
+            implicit_attribute.length > 0 ? implicit_attribute[1] : null;
+          if (options != null)
+            options = options.includes(",") ? options.split(",") : options;
+        } else {
+          name = rule;
+          options = true;
+        }
+        if (!known_rules.includes(name))
+          throw new RulesParserError(`Rule "${name}" not defined`);
+        implicit_attributes.push({
+          name: name,
+          options: options,
+        });
       }
-      if (!known_rules.includes(name))
-        throw new RulesParserError(`Rule "${name}" not defined`);
-      implicit_attributes.push({
-        name: name,
-        options: options,
-      });
     }
   }
 

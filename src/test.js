@@ -31,7 +31,7 @@ const expect = require("chai").expect,
 
 describe("Test payload validation", () => {
   it("Field not in the payload and required", () => {
-    const validator = new Validator(payload, [{ required_fiel: "required" }]);
+    const validator = new Validator(payload, [{ required_field: "required" }]);
     expect(validator.validate()).to.equal(false);
     expect(validator.errors().required_field).to.be.an("array");
   });
@@ -186,6 +186,13 @@ describe("Test payload validation", () => {
   });
   it("Field in the payload is an image", () => {
     const validator = new Validator(payload, [{ file: "image" }]);
+    expect(validator.validate()).to.equal(true);
+    expect(validator.errors()).to.equal(null);
+  });
+  it("Custom rule", () => {
+    const validator = new Validator(payload, [{
+      email: [ { custom: (value) => { return value === 'a@b.com' } } ]
+    }]);
     expect(validator.validate()).to.equal(true);
     expect(validator.errors()).to.equal(null);
   });

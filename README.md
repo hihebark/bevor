@@ -66,7 +66,15 @@ let payload = {
 }
 
 const validator = new Validator(payload, [
-  { username: ['required', 'string'] },
+  { username: [
+    'required',
+    'string',
+    {
+      'custom': (value, field, payload) => {
+        return value == 'johndoe';
+      } 
+    },
+  ] },
   { email: ['required', 'email'] },
   { password: ['required', 'string', 'min:6', 'max:32'] },
   { birthdate: ['required', 'date'] },
@@ -119,6 +127,7 @@ List of all available validation rules:
 - [bail](#bail)
 - [between](#between)
 - [boolean](#boolean)
+- [custom](#custom)
 - [date](#date)
 - [email](#email)
 - [eq](#eq)
@@ -158,6 +167,21 @@ The field being validated has a maximum and minimum value of the set value. Exam
 
 ### boolean
 The field being validated must be a valid boolean, it can be `1`, `0`, `true` or `false`.
+
+### custom
+Custom is used to specify a new rule, it takes a function that returns a boolean. Example:
+```js
+const validator = new Validator(payload, [
+  { field: [
+    {
+      'custom': (value, field, payload) => {
+        return value.charAt(0) === 'A';
+      } 
+    },
+  ] },
+]);
+
+```
 
 ### date
 The field being validated must be a valid date string supported by [ISO 8601 Date](https://www.myintervals.com/blog/2009/05/20/iso-8601-date-validation-that-doesnt-suck/).
